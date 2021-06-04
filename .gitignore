@@ -1,0 +1,4 @@
+.vscode
+*/.vs_code
+*.dSYM
+*/*.dSYM
