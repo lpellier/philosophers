@@ -6,110 +6,114 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 15:01:05 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/04 15:51:49 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/05 16:58:32 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-t_philinfo	*create_philinfo(t_state *state, pthread_mutex_t *forks, int index)
+t_philo	create_philo(t_info *info, pthread_mutex_t *forks, int index)
 {
-	t_philinfo		*philinfo;
+	t_philo		philo;
 
-	if (ft_calloc((void **)&philinfo, 1, sizeof(t_philinfo)))
-		return (NULL);
-	if (ft_calloc((void **)&philinfo->adjacent_forks, 2, sizeof(pthread_mutex_t)))
-		return (NULL);
-	if (index > 0)
-		philinfo->adjacent_forks[0] = forks[index - 1];
+	if (index == 0)
+	{
+		philo.adjacent_forks[0] = &forks[info->number_of_philosophers - 1];
+		philo.adjacent_forks[1] = &forks[0];
+	}
+	else if (index == info->number_of_philosophers)
+	{
+		philo.adjacent_forks[0] = &forks[0];
+		philo.adjacent_forks[1] = &forks[info->number_of_philosophers - 1];
+	}
 	else
-		philinfo->adjacent_forks[0] = forks[state->number_of_philosophers - 1];
-	if (index < state->number_of_philosophers)
-		philinfo->adjacent_forks[1] = forks[index + 1];
-	else
-		philinfo->adjacent_forks[1] = forks[0];
-	philinfo->philo_number = index + 1;
-	philinfo->state = state;
-	return (philinfo);
+	{
+		philo.adjacent_forks[0] = &forks[index];
+		philo.adjacent_forks[1] = &forks[index + 1];
+	}
+	philo.philo_number = index + 1;
+	philo.info = info;
+	return (philo);
 }
 
-pthread_t	*init_threads(t_state *state, pthread_mutex_t *forks)
+t_philo	*init_philos(t_info *info, pthread_mutex_t *forks)
+{
+	int			i;
+	t_philo		*philos;
+
+	i = 0;
+	if (ft_calloc((void **)&philos, info->number_of_philosophers, \
+		sizeof(t_philo)))
+		return (NULL);
+	while (i < info->number_of_philosophers)
+	{
+		philos[i] = create_philo(info, forks, i);
+		pthread_create(&philos[i].thread, NULL, philo_routine, &philos[i]);
+		i++;
+	}
+	return (philos);
+}
+
+pthread_mutex_t	*init_forks(t_info *info)
 {
 	int				i;
-	pthread_t		*threads;
-	t_philinfo		**philinfo;
+	pthread_mutex_t	*forks;
 
 	i = 0;
-	if (ft_calloc((void **)&threads, state->number_of_philosophers, sizeof(pthread_t)))
+	if (ft_calloc((void **)&forks, info->number_of_philosophers, \
+		sizeof(pthread_mutex_t)))
 		return (NULL);
-	if (ft_calloc((void **)&philinfo, state->number_of_philosophers, sizeof(t_philinfo *)))
-		return (NULL);
-	while (i < state->number_of_philosophers)
+	while (i < info->number_of_philosophers)
 	{
-		philinfo[i] = create_philinfo(state, forks, i);
-		if (!philinfo[i])
-			return (NULL);
-		pthread_create(&threads[i], NULL, &philo_routine, philinfo[i]);
+		pthread_mutex_init(&forks[i], NULL);
 		i++;
 	}
-	// need to free philinfo * at some point
-	// but not here - in the calling function
-	return (threads);
+	return (forks);
 }
 
-pthread_mutex_t	*init_mutex(t_state *state)
-{
-	pthread_mutex_t *mutex;
-	int	i;
-
-	i = 0;
-	if (ft_calloc((void **)&mutex, state->number_of_philosophers, sizeof(pthread_mutex_t)))
-		return (NULL);
-	while (i < state->number_of_philosophers)
-	{
-		pthread_mutex_init(&mutex[i], NULL);
-		i++;
-	}
-	return (mutex);
-}
-
-void	join_threads(t_state *state, pthread_t *threads)
+void	join_philos(t_state *state)
 {
 	int		i;
 
 	i = 0;
-	while (i < state->number_of_philosophers)
+	while (i < state->info->number_of_philosophers)
 	{
-		pthread_join(threads[i], NULL);
+		pthread_join(state->philos[i].thread, NULL);
 		i++;
 	}
 }
 
-void	destroy_mutex(t_state *state, pthread_mutex_t *mutex)
+void	destroy_forks(t_state *state)
 {
 	int		i;
 
 	i = 0;
-	while (i < state->number_of_philosophers)
+	while (i < state->info->number_of_philosophers)
 	{
-		pthread_mutex_destroy(&mutex[i]);
+		pthread_mutex_destroy(&state->forks[i]);
 		i++;
 	}
 }
 
-t_state		*init_state(char **av)
+t_state	*init_state(char **av)
 {
-	t_state *state;
+	t_state	*state;
+	t_info	*info;
 
 	if ((ft_calloc((void **)&state, 1, sizeof(t_state))))
 		return (NULL);
-	state->number_of_philosophers = ft_atoi(av[1]);
-	state->time_to_die = ft_atoi(av[2]);
-	state->time_to_eat = ft_atoi(av[3]);
-	state->time_to_sleep = ft_atoi(av[4]);
-	state->number_of_time_each_philosopher_must_eat = -1;
-	gettimeofday(&state->time_since_start, NULL);
+	if ((ft_calloc((void **)&info, 1, sizeof(t_info))))
+		return (NULL);
+	info->number_of_philosophers = ft_atoi(av[1]);
+	info->time_to_die = ft_atoi(av[2]);
+	info->time_to_eat = ft_atoi(av[3]);
+	info->time_to_sleep = ft_atoi(av[4]);
+	info->number_of_time_each_philosopher_must_eat = -1;
+	gettimeofday(&info->time_since_start, NULL);
 	if (av[5])
-		state->number_of_time_each_philosopher_must_eat = ft_atoi(av[5]);
+		info->number_of_time_each_philosopher_must_eat = ft_atoi(av[5]);
+	state->info = info;
+	state->forks = init_forks(info);
+	state->philos = init_philos(info, state->forks);
 	return (state);
 }

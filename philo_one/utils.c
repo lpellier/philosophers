@@ -6,16 +6,16 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 15:00:16 by lpellier          #+#    #+#             */
-/*   Updated: 2021/05/29 15:00:35 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/05 16:04:09 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void    ft_bzero(void *s, size_t n)
+void	ft_bzero(void *s, size_t n)
 {
-	unsigned char   *buffer;
-	size_t                  i;
+	unsigned char	*buffer;
+	size_t			i;
 
 	if (s != NULL)
 	{
@@ -29,7 +29,7 @@ void    ft_bzero(void *s, size_t n)
 	}
 }
 
-int     a_malloc(void **ptr, int size)
+int	a_malloc(void **ptr, int size)
 {
 	*ptr = malloc(size);
 	if (!(*ptr))
@@ -37,7 +37,7 @@ int     a_malloc(void **ptr, int size)
 	return (0);
 }
 
-int     ft_calloc(void **ptr, size_t count, size_t size)
+int	ft_calloc(void **ptr, size_t count, size_t size)
 {
 	if (count != 0 && size != 0)
 	{
@@ -49,11 +49,11 @@ int     ft_calloc(void **ptr, size_t count, size_t size)
 	return (1);
 }
 
-int     ft_atoi(const char *str)
+int	ft_atoi(const char *str)
 {
-	int     neg;
-	int     i;
-	int     num;
+	int	neg;
+	int	i;
+	int	num;
 
 	i = 0;
 	neg = 1;
