@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 16:26:35 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 12:55:05 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/08 15:19:38 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,23 @@ long	time_passed(struct timeval *ref)
 
 	gettimeofday(&timer, NULL);
 	if (ref)
-		return (((timer.tv_sec - ref->tv_sec) * 1000) + \
-			((timer.tv_usec - ref->tv_usec) / 1000));
+		return ((double)((timer.tv_sec - ref->tv_sec) * 1000) + \
+			((long)(timer.tv_usec - ref->tv_usec) * 0.001));
 	else
-		return ((timer.tv_sec * 1000) + (timer.tv_usec / 1000));
+		return ((double)(timer.tv_sec * 1000) + (long)(timer.tv_usec * 0.001));
+}
+
+void	output(t_philo *philo, char *msg)
+{
+	pthread_mutex_lock(&philo->info->output_lock);
+	if (!philo->info->everyone_is_alive)
+	{
+		pthread_mutex_unlock(&philo->info->output_lock);
+		return ;
+	}
+	printf("\x1b[36m%5ld \033[31m%d \x1b[36m%s\n", \
+		time_passed(&philo->time_since_last_meal), philo->philo_number, msg);
+	pthread_mutex_unlock(&philo->info->output_lock);
 }
 
 void	*check_time(void *arg)
@@ -40,10 +53,10 @@ void	*check_time(void *arg)
 	{
 		if (time_passed(&philo->time_since_last_meal) > philo->info->time_to_die)
 		{
-			philo->is_dead = TRUE;
-			pthread_mutex_lock(&philo->info->lock);
-			printf("\x1b[36m%5ld \033[31m%d \x1b[36mhas died\n", \
-				time_passed(&philo->time_since_last_meal), philo->philo_number);
+			if (!philo->info->everyone_is_alive)
+				return (NULL);
+			output(philo, "has died");
+			philo->info->everyone_is_alive = FALSE;
 			return (NULL);
 		}
 	}
@@ -55,25 +68,22 @@ void	better_usleep(int time)
 	long	desired_sleep;
 
 	desired_sleep = time_passed(NULL) + time;
-	while (time_passed(NULL) <= desired_sleep)
-		usleep(1000);
+	while (time_passed(NULL) < desired_sleep)
+		usleep(500);
 }
 
 void	philo_thinks(t_philo *philo)
 {
-	printf("\x1b[36m%5ld \033[31m%d \x1b[36mis thinking\n", \
-		time_passed(&philo->time_since_last_meal), philo->philo_number);
+	output(philo, "is thinking");
 	philo->does = FORK;
 }
 
 void	philo_takes_forks(t_philo *philo)
 {
 	pthread_mutex_lock(philo->adjacent_forks[0]);
-	printf("\x1b[36m%5ld \033[31m%d \x1b[36mhas taken a fork\x1b[0m\n", \
-		time_passed(&philo->time_since_last_meal), philo->philo_number);
+	output(philo, "has taken a fork");
 	pthread_mutex_lock(philo->adjacent_forks[1]);
-	printf("\x1b[36m%5ld \033[31m%d \x1b[36mhas taken a fork\x1b[0m\n", \
-		time_passed(&philo->time_since_last_meal), philo->philo_number);
+	output(philo, "has taken a fork");
 	philo->does = EAT;
 }
 
@@ -82,8 +92,7 @@ void	philo_eats(t_philo *philo)
 	pthread_t	timer;
 
 	gettimeofday(&philo->time_since_last_meal, NULL);
-	printf("\x1b[36m%5ld \033[31m%d \x1b[36mis eating\x1b[0m\n", \
-		time_passed(&philo->time_since_last_meal), philo->philo_number);
+	output(philo, "is eating");
 	better_usleep(philo->info->time_to_eat);
 	pthread_mutex_unlock(philo->adjacent_forks[0]);
 	pthread_mutex_unlock(philo->adjacent_forks[1]);
@@ -98,16 +107,13 @@ void	philo_eats(t_philo *philo)
 
 void	philo_sleeps(t_philo *philo)
 {
-	printf("\x1b[36m%5ld \033[31m%d \x1b[36mis sleeping\n", \
-		time_passed(&philo->time_since_last_meal), philo->philo_number);
+	output(philo, "is sleeping");
 	better_usleep(philo->info->time_to_sleep);
 	philo->does = THINK;
 }
 
 void	philo_does(t_philo *philo)
 {
-	if (!philo->info->everyone_is_alive)
-		pthread_mutex_lock(&philo->info->lock);
 	if (philo->does == THINK)
 		philo_thinks(philo);
 	else if (philo->does == FORK)
@@ -127,20 +133,15 @@ void	*philo_routine(void *arg)
 	gettimeofday(&philo->time_since_last_meal, NULL);
 	pthread_create(&timer, NULL, &check_time, (void *)philo);
 	pthread_detach(timer);
-	while (!philo->is_dead)
+	while (philo->info->everyone_is_alive)
 	{
 		philo_does(philo);
-		if ((philo->info->meal_goal != -1 && philo->number_of_meals >= philo->info->meal_goal) || \
-			!philo->info->everyone_is_alive)
+		if (philo->info->meal_goal != -1 && \
+			philo->number_of_meals >= philo->info->meal_goal)
 			break ;
 	}
-	if (philo->is_dead)
-		philo->info->everyone_is_alive = FALSE;
-	if (!philo->is_dead && philo->info->meal_goal != -1 && philo->info->everyone_is_alive)
-	{
-		printf("\x1b[36m%5ld \033[31m%d \x1b[36mis done\n", \
-		time_passed(&philo->time_since_last_meal), philo->philo_number);
-	}
+	if (philo->info->everyone_is_alive && philo->info->meal_goal != -1)
+		output(philo, "is done");
 	return (NULL);
 }
 

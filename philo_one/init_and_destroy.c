@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 15:01:05 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 12:50:24 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/08 15:15:50 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@ t_philo	create_philo(t_info *info, pthread_mutex_t *forks, int index)
 	philo.adjacent_forks[0] = &forks[philo.philo_number - 1];
 	philo.adjacent_forks[1] = &forks[philo.philo_number % info->number_of_philosophers];
 	philo.info = info;
-	philo.is_dead = FALSE;
 	philo.does = SLEEP;
 	philo.number_of_meals = 0;
 	if (philo.philo_number % 2 == 0)
@@ -52,7 +51,7 @@ pthread_mutex_t	*init_forks(t_info *info)
 	pthread_mutex_t	*forks;
 
 	i = 0;
-	pthread_mutex_init(&info->lock, NULL);
+	pthread_mutex_init(&info->output_lock, NULL);
 	if (ft_calloc((void **)&forks, info->number_of_philosophers, \
 		sizeof(pthread_mutex_t)))
 		return (NULL);
@@ -81,7 +80,7 @@ void	destroy_forks(t_state *state)
 	int		i;
 
 	i = 0;
-	pthread_mutex_destroy(&state->info->lock);
+	pthread_mutex_destroy(&state->info->output_lock);
 	while (i < state->info->number_of_philosophers)
 	{
 		pthread_mutex_destroy(&state->forks[i]);
