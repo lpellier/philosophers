@@ -6,11 +6,11 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/08 15:30:49 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 15:34:14 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/08 17:33:00 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo_one.h"
+#include "philo_two.h"
 
 void	philo_thinks(t_philo *philo)
 {
@@ -20,9 +20,9 @@ void	philo_thinks(t_philo *philo)
 
 void	philo_takes_forks(t_philo *philo)
 {
-	pthread_mutex_lock(philo->adjacent_forks[0]);
+	sem_wait(philo->info->forks);
 	output(philo, "has taken a fork");
-	pthread_mutex_lock(philo->adjacent_forks[1]);
+	sem_wait(philo->info->forks);
 	output(philo, "has taken a fork");
 	philo->does = EAT;
 }
@@ -34,8 +34,8 @@ void	philo_eats(t_philo *philo)
 	gettimeofday(&philo->time_since_last_meal, NULL);
 	output(philo, "is eating");
 	better_usleep(philo->info->time_to_eat);
-	pthread_mutex_unlock(philo->adjacent_forks[0]);
-	pthread_mutex_unlock(philo->adjacent_forks[1]);
+	sem_post(philo->info->forks);
+	sem_post(philo->info->forks);
 	philo->number_of_meals++;
 	if (philo->info->meal_goal != -1 && \
 		philo->number_of_meals >= philo->info->meal_goal)

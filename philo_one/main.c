@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 16:26:35 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 15:34:04 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/08 16:22:39 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ t_state	*init_state(char **av)
 	info->time_to_eat = ft_atoi(av[3]);
 	info->time_to_sleep = ft_atoi(av[4]);
 	info->meal_goal = -1;
-	info->everyone_is_alive = TRUE;
+	info->everyone_is_alive = true;
 	gettimeofday(&info->time_since_start, NULL);
 	if (av[5])
 		info->meal_goal = ft_atoi(av[5]);
@@ -57,11 +57,31 @@ void	*philo_routine(void *arg)
 	return (NULL);
 }
 
+int	error_in_args(char **av)
+{
+	int	i;
+	int	j;
+
+	i = 1;
+	while (av[i])
+	{
+		j = 0;
+		while (av[i][j])
+		{
+			if (!(av[i][j] >= 48 && av[i][j] <= 57))
+				return (EXIT_FAILURE);
+			j++;
+		}
+		i++;
+	}
+	return (EXIT_SUCCESS);
+}
+
 int	main(int ac, char **av)
 {
 	t_state			*state;
 
-	if (ac != 5 && ac != 6)
+	if ((ac != 5 && ac != 6) || error_in_args(av))
 	{
 		printf("arg error\nnumber_of_philosophers | ");
 		printf("time_to_die | time_to_eat | time_to_sleep | ");

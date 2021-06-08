@@ -1,23 +1,27 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philo_one.h                                        :+:      :+:    :+:   */
+/*   philo_two.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/08 15:31:15 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 15:33:22 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/08 17:32:46 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PHILO_ONE_H
-# define PHILO_ONE_H
+#ifndef PHILO_TWO_H
+# define PHILO_TWO_H
 
 # include <stdlib.h>
 # include <stdio.h>
+# include <stdbool.h>
 # include <pthread.h>
 # include <unistd.h>
 # include <sys/time.h>
+# include <semaphore.h>
+# include <fcntl.h>
+# include <sys/stat.h>
 
 enum		e_actions
 {
@@ -27,16 +31,10 @@ enum		e_actions
 	SLEEP
 };
 
-enum		e_bool
-{
-	FALSE,
-	TRUE
-};
-
 typedef struct s_info
 {
 	struct timeval	time_since_start;
-	pthread_mutex_t	output_lock;
+	sem_t			*forks;
 	int				number_of_philosophers;
 	int				time_to_die;
 	int				time_to_eat;
@@ -47,7 +45,6 @@ typedef struct s_info
 
 typedef struct s_philo
 {
-	pthread_mutex_t	*adjacent_forks[2];
 	pthread_t		thread;
 	t_info			*info;
 	struct timeval	time_since_last_meal;
@@ -58,7 +55,6 @@ typedef struct s_philo
 
 typedef struct s_state
 {
-	pthread_mutex_t	*forks;
 	t_philo			*philos;
 	t_info			*info;
 }					t_state;
@@ -71,10 +67,9 @@ int					ft_atoi(const char *str);
 void				secure_free(void *ptr);
 
 // init_and_destroy
-t_philo				create_philo(t_info *info, \
-						pthread_mutex_t *forks, int index);
-t_philo				*init_philos(t_info *info, pthread_mutex_t *forks);
-pthread_mutex_t		*init_forks(t_info *info);
+t_philo				create_philo(t_info *info, int index);
+t_philo				*init_philos(t_info *info);
+sem_t				*init_forks(t_info *info);
 void				join_philos(t_state *state);
 void				destroy_forks(t_state *state);
 
@@ -94,5 +89,6 @@ void				better_usleep(int time);
 // main
 t_state				*init_state(char **av);
 void				*philo_routine(void *arg);
+int					error_in_args(char **av);
 
 #endif

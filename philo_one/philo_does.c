@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/08 15:30:49 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 15:34:14 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/08 17:13:19 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@ void	philo_thinks(t_philo *philo)
 
 void	philo_takes_forks(t_philo *philo)
 {
-	pthread_mutex_lock(philo->adjacent_forks[0]);
 	output(philo, "has taken a fork");
 	pthread_mutex_lock(philo->adjacent_forks[1]);
 	output(philo, "has taken a fork");

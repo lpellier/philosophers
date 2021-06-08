@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/08 15:32:11 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 15:32:36 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/08 16:11:26 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ void	*check_time(void *arg)
 			if (!philo->info->everyone_is_alive)
 				return (NULL);
 			output(philo, "has died");
-			philo->info->everyone_is_alive = FALSE;
+			philo->info->everyone_is_alive = false;
 			return (NULL);
 		}
 	}

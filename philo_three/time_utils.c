@@ -6,11 +6,11 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/08 15:32:11 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 15:32:36 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/08 16:58:47 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo_one.h"
+#include "philo_three.h"
 
 long	time_passed(struct timeval *ref)
 {
@@ -26,15 +26,10 @@ long	time_passed(struct timeval *ref)
 
 void	output(t_philo *philo, char *msg)
 {
-	pthread_mutex_lock(&philo->info->output_lock);
-	if (!philo->info->everyone_is_alive)
-	{
-		pthread_mutex_unlock(&philo->info->output_lock);
+	if (!philo->is_alive)
 		return ;
-	}
 	printf("\x1b[36m%5ld \033[31m%d \x1b[36m%s\n", \
 		time_passed(&philo->time_since_last_meal), philo->philo_number, msg);
-	pthread_mutex_unlock(&philo->info->output_lock);
 }
 
 void	*check_time(void *arg)
@@ -47,10 +42,10 @@ void	*check_time(void *arg)
 		if (time_passed(&philo->time_since_last_meal) > \
 			philo->info->time_to_die)
 		{
-			if (!philo->info->everyone_is_alive)
+			if (!philo->is_alive)
 				return (NULL);
 			output(philo, "has died");
-			philo->info->everyone_is_alive = FALSE;
+			philo->is_alive = false;
 			return (NULL);
 		}
 	}

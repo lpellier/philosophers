@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/08 15:31:15 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 15:33:22 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/08 16:23:25 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 # include <stdlib.h>
 # include <stdio.h>
+# include <stdbool.h>
 # include <pthread.h>
 # include <unistd.h>
 # include <sys/time.h>
@@ -25,12 +26,6 @@ enum		e_actions
 	FORK,
 	EAT,
 	SLEEP
-};
-
-enum		e_bool
-{
-	FALSE,
-	TRUE
 };
 
 typedef struct s_info
@@ -94,5 +89,6 @@ void				better_usleep(int time);
 // main
 t_state				*init_state(char **av);
 void				*philo_routine(void *arg);
+int					error_in_args(char **av);
 
 #endif

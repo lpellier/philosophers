@@ -6,29 +6,47 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 15:01:05 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 15:34:05 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/08 17:43:12 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo_one.h"
+#include "philo_three.h"
 
-t_philo	create_philo(t_info *info, pthread_mutex_t *forks, int index)
+t_philo	create_philo(t_info *info, int index)
 {
 	t_philo		philo;
 
 	philo.philo_number = index + 1;
-	philo.adjacent_forks[0] = &forks[philo.philo_number - 1];
-	philo.adjacent_forks[1] = \
-		&forks[philo.philo_number % info->number_of_philosophers];
 	philo.info = info;
 	philo.does = SLEEP;
 	philo.number_of_meals = 0;
+	philo.is_alive = true;
 	if (philo.philo_number % 2 == 0)
 		philo.does = FORK;
 	return (philo);
 }
 
-t_philo	*init_philos(t_info *info, pthread_mutex_t *forks)
+void	*philo_process(void *arg)
+{
+	int		status;
+	t_philo *philo;
+	pid_t	cpid;
+
+	philo = arg;
+	cpid = fork();
+	philo->cpid = cpid;
+	if (cpid == -1)
+		return (NULL);
+	else if (cpid == 0)
+		exit(philo_routine(philo));
+	else
+	{
+		waitpid(cpid, &status, 0);
+		return (NULL);
+	}
+}
+
+t_philo	*init_philos(t_info *info)
 {
 	int			i;
 	t_philo		*philos;
@@ -39,28 +57,23 @@ t_philo	*init_philos(t_info *info, pthread_mutex_t *forks)
 		return (NULL);
 	while (i < info->number_of_philosophers)
 	{
-		philos[i] = create_philo(info, forks, i);
-		pthread_create(&philos[i].thread, NULL, philo_routine, &philos[i]);
+		philos[i] = create_philo(info, i);
+		pthread_create(&philos[i].thread, NULL, philo_process, &philos[i]);
 		i++;
 	}
 	return (philos);
 }
 
-pthread_mutex_t	*init_forks(t_info *info)
+sem_t	*init_forks(t_info *info)
 {
 	int				i;
-	pthread_mutex_t	*forks;
+	sem_t			*forks;
 
 	i = 0;
-	pthread_mutex_init(&info->output_lock, NULL);
-	if (ft_calloc((void **)&forks, info->number_of_philosophers, \
-		sizeof(pthread_mutex_t)))
+	if (ft_calloc((void **)&forks, 1, sizeof(sem_t)))
 		return (NULL);
-	while (i < info->number_of_philosophers)
-	{
-		pthread_mutex_init(&forks[i], NULL);
-		i++;
-	}
+	sem_unlink("forks");
+	forks = sem_open("forks", O_CREAT, 00644, info->number_of_philosophers);
 	return (forks);
 }
 
@@ -72,6 +85,7 @@ void	join_philos(t_state *state)
 	while (i < state->info->number_of_philosophers)
 	{
 		pthread_join(state->philos[i].thread, NULL);
+		kill(state->philos[i].cpid, SIGINT);
 		i++;
 	}
 }
@@ -81,10 +95,6 @@ void	destroy_forks(t_state *state)
 	int		i;
 
 	i = 0;
-	pthread_mutex_destroy(&state->info->output_lock);
-	while (i < state->info->number_of_philosophers)
-	{
-		pthread_mutex_destroy(&state->forks[i]);
-		i++;
-	}
+	sem_close(state->info->forks);
+	sem_unlink("forks");
 }
