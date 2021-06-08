@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 16:26:35 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 12:41:54 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/08 12:55:05 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ void	*check_time(void *arg)
 		if (time_passed(&philo->time_since_last_meal) > philo->info->time_to_die)
 		{
 			philo->is_dead = TRUE;
+			pthread_mutex_lock(&philo->info->lock);
 			printf("\x1b[36m%5ld \033[31m%d \x1b[36mhas died\n", \
 				time_passed(&philo->time_since_last_meal), philo->philo_number);
 			return (NULL);
@@ -105,6 +106,8 @@ void	philo_sleeps(t_philo *philo)
 
 void	philo_does(t_philo *philo)
 {
+	if (!philo->info->everyone_is_alive)
+		pthread_mutex_lock(&philo->info->lock);
 	if (philo->does == THINK)
 		philo_thinks(philo);
 	else if (philo->does == FORK)
@@ -133,7 +136,7 @@ void	*philo_routine(void *arg)
 	}
 	if (philo->is_dead)
 		philo->info->everyone_is_alive = FALSE;
-	if (!philo->is_dead && philo->info->meal_goal != -1)
+	if (!philo->is_dead && philo->info->meal_goal != -1 && philo->info->everyone_is_alive)
 	{
 		printf("\x1b[36m%5ld \033[31m%d \x1b[36mis done\n", \
 		time_passed(&philo->time_since_last_meal), philo->philo_number);

@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 16:24:53 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 12:40:23 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/08 12:47:26 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ enum		e_bool
 typedef struct s_info
 {
 	struct timeval	time_since_start;
+	pthread_mutex_t lock;
 	int				number_of_philosophers;
 	int				time_to_die;
 	int				time_to_eat;

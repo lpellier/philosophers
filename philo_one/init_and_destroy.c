@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 15:01:05 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 12:41:51 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/08 12:50:24 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ pthread_mutex_t	*init_forks(t_info *info)
 	pthread_mutex_t	*forks;
 
 	i = 0;
+	pthread_mutex_init(&info->lock, NULL);
 	if (ft_calloc((void **)&forks, info->number_of_philosophers, \
 		sizeof(pthread_mutex_t)))
 		return (NULL);
@@ -80,6 +81,7 @@ void	destroy_forks(t_state *state)
 	int		i;
 
 	i = 0;
+	pthread_mutex_destroy(&state->info->lock);
 	while (i < state->info->number_of_philosophers)
 	{
 		pthread_mutex_destroy(&state->forks[i]);
