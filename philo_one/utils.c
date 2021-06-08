@@ -6,11 +6,18 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 15:00:16 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/05 16:04:09 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/08 15:31:48 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo.h"
+#include "philo_one.h"
+
+void	secure_free(void *ptr)
+{
+	if (ptr)
+		free(ptr);
+	ptr = NULL;
+}
 
 void	ft_bzero(void *s, size_t n)
 {

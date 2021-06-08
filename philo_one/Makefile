@@ -6,7 +6,7 @@
 #    By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/05/28 16:29:51 by lpellier          #+#    #+#              #
-#    Updated: 2021/05/29 15:04:35 by lpellier         ###   ########.fr        #
+#    Updated: 2021/06/08 15:33:06 by lpellier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,6 +18,8 @@ CC = clang
 
 SRCS = main.c \
 		utils.c \
+		time_utils.c \
+		philo_does.c \
 		init_and_destroy.c
 
 OBJS = $(SRCS:.c=.o)
