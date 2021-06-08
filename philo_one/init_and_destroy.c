@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 15:01:05 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/05 16:58:32 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/08 12:41:51 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,23 +16,15 @@ t_philo	create_philo(t_info *info, pthread_mutex_t *forks, int index)
 {
 	t_philo		philo;
 
-	if (index == 0)
-	{
-		philo.adjacent_forks[0] = &forks[info->number_of_philosophers - 1];
-		philo.adjacent_forks[1] = &forks[0];
-	}
-	else if (index == info->number_of_philosophers)
-	{
-		philo.adjacent_forks[0] = &forks[0];
-		philo.adjacent_forks[1] = &forks[info->number_of_philosophers - 1];
-	}
-	else
-	{
-		philo.adjacent_forks[0] = &forks[index];
-		philo.adjacent_forks[1] = &forks[index + 1];
-	}
 	philo.philo_number = index + 1;
+	philo.adjacent_forks[0] = &forks[philo.philo_number - 1];
+	philo.adjacent_forks[1] = &forks[philo.philo_number % info->number_of_philosophers];
 	philo.info = info;
+	philo.is_dead = FALSE;
+	philo.does = SLEEP;
+	philo.number_of_meals = 0;
+	if (philo.philo_number % 2 == 0)
+		philo.does = FORK;
 	return (philo);
 }
 
@@ -108,10 +100,11 @@ t_state	*init_state(char **av)
 	info->time_to_die = ft_atoi(av[2]);
 	info->time_to_eat = ft_atoi(av[3]);
 	info->time_to_sleep = ft_atoi(av[4]);
-	info->number_of_time_each_philosopher_must_eat = -1;
+	info->meal_goal = -1;
+	info->everyone_is_alive = TRUE;
 	gettimeofday(&info->time_since_start, NULL);
 	if (av[5])
-		info->number_of_time_each_philosopher_must_eat = ft_atoi(av[5]);
+		info->meal_goal = ft_atoi(av[5]);
 	state->info = info;
 	state->forks = init_forks(info);
 	state->philos = init_philos(info, state->forks);

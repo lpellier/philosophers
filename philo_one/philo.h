@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 16:24:53 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/05 17:16:30 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/08 12:40:23 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,18 @@
 # include <unistd.h>
 # include <sys/time.h>
 
+# define RED "\033[31m"
+# define GREEN "\033[32m"
+# define YELLOW "\033[33m"
+# define BLUE "\033[34m"
+# define MAGENTA "\033[35m"
+
 enum		e_actions
 {
 	THINK,
 	FORK,
 	EAT,
-	SLEEP,
-	DIE
+	SLEEP
 };
 
 enum		e_bool
@@ -36,23 +41,25 @@ enum		e_bool
 
 typedef struct s_info
 {
+	struct timeval	time_since_start;
 	int				number_of_philosophers;
 	int				time_to_die;
 	int				time_to_eat;
 	int				time_to_sleep;
-	int				number_of_time_each_philosopher_must_eat;
-	struct timeval	time_since_start;
+	int				meal_goal;
+	int				everyone_is_alive;
 }					t_info;
 
 typedef struct s_philo
 {
 	pthread_mutex_t	*adjacent_forks[2];
 	pthread_t		thread;
-	struct timeval	time_since_last_meal;
-	int				is_eating;
-	int				is_dead;
-	int				philo_number;
 	t_info			*info;
+	struct timeval	time_since_last_meal;
+	int				number_of_meals;
+	int				is_dead;
+	int				does;
+	int				philo_number;
 }					t_philo;
 
 typedef struct s_state

@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 16:26:35 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/05 18:05:06 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/08 12:41:54 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,11 +36,13 @@ void	*check_time(void *arg)
 	t_philo			*philo;
 
 	philo = arg;
-	while (!philo->is_eating)
+	while (philo->does != EAT)
 	{
 		if (time_passed(&philo->time_since_last_meal) > philo->info->time_to_die)
 		{
 			philo->is_dead = TRUE;
+			printf("\x1b[36m%5ld \033[31m%d \x1b[36mhas died\n", \
+				time_passed(&philo->time_since_last_meal), philo->philo_number);
 			return (NULL);
 		}
 	}
@@ -52,34 +54,65 @@ void	better_usleep(int time)
 	long	desired_sleep;
 
 	desired_sleep = time_passed(NULL) + time;
-	while (time_passed(NULL) < desired_sleep)
+	while (time_passed(NULL) <= desired_sleep)
 		usleep(1000);
 }
 
-void	philo_does(t_philo *philo, int action)
+void	philo_thinks(t_philo *philo)
 {
-	if (action == THINK)
-		printf("\x1b[36m%5ld \033[31m%d \x1b[36mis thinking\n", \
-			time_passed(&philo->time_since_last_meal), philo->philo_number);
-	else if (action == FORK)
-		printf("\x1b[36m%5ld \033[31m%d \x1b[36mhas taken a fork\x1b[0m\n", \
-			time_passed(&philo->time_since_last_meal), philo->philo_number);
-	else if (action == EAT)
-	{
-		printf("\x1b[36m%5ld \033[31m%d \x1b[36mis eating\n", \
-			time_passed(&philo->time_since_last_meal), philo->philo_number);
-		better_usleep(philo->info->time_to_eat);
-		gettimeofday(&philo->time_since_last_meal, NULL);
-	}
-	else if (action == SLEEP)
-	{
-		printf("\x1b[36m%5ld \033[31m%d \x1b[36mis sleeping\n", \
-			time_passed(&philo->time_since_last_meal), philo->philo_number);
-		better_usleep(philo->info->time_to_sleep);
-	}
-	else if (action == DIE)
-		printf("\x1b[36m%5ld \033[31m%d \x1b[36mhas died\n", \
-			time_passed(&philo->time_since_last_meal), philo->philo_number);
+	printf("\x1b[36m%5ld \033[31m%d \x1b[36mis thinking\n", \
+		time_passed(&philo->time_since_last_meal), philo->philo_number);
+	philo->does = FORK;
+}
+
+void	philo_takes_forks(t_philo *philo)
+{
+	pthread_mutex_lock(philo->adjacent_forks[0]);
+	printf("\x1b[36m%5ld \033[31m%d \x1b[36mhas taken a fork\x1b[0m\n", \
+		time_passed(&philo->time_since_last_meal), philo->philo_number);
+	pthread_mutex_lock(philo->adjacent_forks[1]);
+	printf("\x1b[36m%5ld \033[31m%d \x1b[36mhas taken a fork\x1b[0m\n", \
+		time_passed(&philo->time_since_last_meal), philo->philo_number);
+	philo->does = EAT;
+}
+
+void	philo_eats(t_philo *philo)
+{
+	pthread_t	timer;
+
+	gettimeofday(&philo->time_since_last_meal, NULL);
+	printf("\x1b[36m%5ld \033[31m%d \x1b[36mis eating\x1b[0m\n", \
+		time_passed(&philo->time_since_last_meal), philo->philo_number);
+	better_usleep(philo->info->time_to_eat);
+	pthread_mutex_unlock(philo->adjacent_forks[0]);
+	pthread_mutex_unlock(philo->adjacent_forks[1]);
+	philo->number_of_meals++;
+	if (philo->info->meal_goal != -1 && \
+		philo->number_of_meals >= philo->info->meal_goal)
+		return ;
+	pthread_create(&timer, NULL, &check_time, philo);
+	pthread_detach(timer);
+	philo->does = SLEEP;
+}
+
+void	philo_sleeps(t_philo *philo)
+{
+	printf("\x1b[36m%5ld \033[31m%d \x1b[36mis sleeping\n", \
+		time_passed(&philo->time_since_last_meal), philo->philo_number);
+	better_usleep(philo->info->time_to_sleep);
+	philo->does = THINK;
+}
+
+void	philo_does(t_philo *philo)
+{
+	if (philo->does == THINK)
+		philo_thinks(philo);
+	else if (philo->does == FORK)
+		philo_takes_forks(philo);
+	else if (philo->does == EAT)
+		philo_eats(philo);
+	else if (philo->does == SLEEP)
+		philo_sleeps(philo);
 }
 
 void	*philo_routine(void *arg)
@@ -88,32 +121,23 @@ void	*philo_routine(void *arg)
 	pthread_t	timer;
 
 	philo = arg;
-	philo->is_dead = FALSE;
-	philo->is_eating = FALSE;
 	gettimeofday(&philo->time_since_last_meal, NULL);
+	pthread_create(&timer, NULL, &check_time, (void *)philo);
+	pthread_detach(timer);
 	while (!philo->is_dead)
 	{
-		philo_does(philo, THINK);
-		pthread_create(&timer, NULL, &check_time, (void *)philo);
-		pthread_detach(timer);
-		pthread_mutex_lock(philo->adjacent_forks[0]);
-		if (philo->is_dead)
-		{
-			pthread_mutex_unlock(philo->adjacent_forks[0]);
-			break;
-		}
-		philo_does(philo, FORK);
-		pthread_mutex_lock(philo->adjacent_forks[1]);
-		philo_does(philo, FORK);
-		philo->is_eating = TRUE;
-		philo_does(philo, EAT);
-		pthread_mutex_unlock(philo->adjacent_forks[0]);
-		pthread_mutex_unlock(philo->adjacent_forks[1]);
-		philo->is_eating = FALSE;
-		if (!philo->is_dead)
-			philo_does(philo, SLEEP);
+		philo_does(philo);
+		if ((philo->info->meal_goal != -1 && philo->number_of_meals >= philo->info->meal_goal) || \
+			!philo->info->everyone_is_alive)
+			break ;
 	}
-	philo_does(philo, DIE);
+	if (philo->is_dead)
+		philo->info->everyone_is_alive = FALSE;
+	if (!philo->is_dead && philo->info->meal_goal != -1)
+	{
+		printf("\x1b[36m%5ld \033[31m%d \x1b[36mis done\n", \
+		time_passed(&philo->time_since_last_meal), philo->philo_number);
+	}
 	return (NULL);
 }
 
