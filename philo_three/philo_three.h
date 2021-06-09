@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/08 15:31:15 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 17:39:33 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/09 15:22:08 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,13 +35,11 @@ enum		e_actions
 typedef struct s_info
 {
 	struct timeval	time_since_start;
-	sem_t			*forks;
 	int				number_of_philosophers;
 	int				time_to_die;
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				meal_goal;
-	int				everyone_is_alive;
 }					t_info;
 
 typedef struct s_philo
@@ -58,6 +56,7 @@ typedef struct s_philo
 
 typedef struct s_state
 {
+	sem_t			*forks;
 	t_philo			*philos;
 	t_info			*info;
 }					t_state;
@@ -72,16 +71,16 @@ void				secure_free(void *ptr);
 // init_and_destroy
 t_philo				create_philo(t_info *info, int index);
 t_philo				*init_philos(t_info *info);
-sem_t				*init_forks(t_info *info);
+void				init_forks(t_state *state);
 void				join_philos(t_state *state);
 void				destroy_forks(t_state *state);
 
 // philo_does
 void				philo_thinks(t_philo *philo);
-void				philo_takes_forks(t_philo *philo);
-void				philo_eats(t_philo *philo);
+void				philo_takes_forks(t_philo *philo, sem_t *forks);
+void				philo_eats(t_philo *philo, sem_t *forks);
 void				philo_sleeps(t_philo *philo);
-void				philo_does(t_philo *philo);
+void				philo_does(t_philo *philo, sem_t *forks);
 
 // time_utils
 long				time_passed(struct timeval *ref);

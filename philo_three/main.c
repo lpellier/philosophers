@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 16:26:35 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 17:39:15 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/09 15:21:43 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,12 +26,11 @@ t_state	*init_state(char **av)
 	info->time_to_eat = ft_atoi(av[3]);
 	info->time_to_sleep = ft_atoi(av[4]);
 	info->meal_goal = -1;
-	info->everyone_is_alive = true;
-	info->forks = init_forks(info);
 	gettimeofday(&info->time_since_start, NULL);
 	if (av[5])
 		info->meal_goal = ft_atoi(av[5]);
 	state->info = info;
+	init_forks(state);
 	state->philos = init_philos(info);
 	return (state);
 }
@@ -39,18 +38,20 @@ t_state	*init_state(char **av)
 int	philo_routine(t_philo *philo)
 {
 	pthread_t	timer;
+	sem_t		*forks;
 
+	forks = sem_open("forks", O_RDWR);
 	gettimeofday(&philo->time_since_last_meal, NULL);
 	pthread_create(&timer, NULL, &check_time, (void *)philo);
 	pthread_detach(timer);
 	while (philo->is_alive)
 	{
-		philo_does(philo);
+		philo_does(philo, forks);
 		if (philo->info->meal_goal != -1 && \
 			philo->number_of_meals >= philo->info->meal_goal)
 			break ;
 	}
-	if (philo->info->everyone_is_alive && philo->info->meal_goal != -1)
+	if (philo->is_alive && philo->info->meal_goal != -1)
 		output(philo, "is done");
 	return (0);
 }

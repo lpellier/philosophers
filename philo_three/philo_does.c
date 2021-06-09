@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/08 15:30:49 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 17:21:43 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/09 13:23:04 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,25 +18,24 @@ void	philo_thinks(t_philo *philo)
 	philo->does = FORK;
 }
 
-void	philo_takes_forks(t_philo *philo)
+void	philo_takes_forks(t_philo *philo, sem_t *forks)
 {
-	printf("test : %d\n", *philo->info->forks);
-	sem_wait(philo->info->forks);
+	sem_wait(forks);
 	output(philo, "has taken a fork");
-	sem_wait(philo->info->forks);
+	sem_wait(forks);
 	output(philo, "has taken a fork");
 	philo->does = EAT;
 }
 
-void	philo_eats(t_philo *philo)
+void	philo_eats(t_philo *philo, sem_t *forks)
 {
 	pthread_t	timer;
 
 	gettimeofday(&philo->time_since_last_meal, NULL);
 	output(philo, "is eating");
 	better_usleep(philo->info->time_to_eat);
-	sem_post(philo->info->forks);
-	sem_post(philo->info->forks);
+	sem_post(forks);
+	sem_post(forks);
 	philo->number_of_meals++;
 	if (philo->info->meal_goal != -1 && \
 		philo->number_of_meals >= philo->info->meal_goal)
@@ -53,14 +52,14 @@ void	philo_sleeps(t_philo *philo)
 	philo->does = THINK;
 }
 
-void	philo_does(t_philo *philo)
+void	philo_does(t_philo *philo, sem_t *forks)
 {
 	if (philo->does == THINK)
 		philo_thinks(philo);
 	else if (philo->does == FORK)
-		philo_takes_forks(philo);
+		philo_takes_forks(philo, forks);
 	else if (philo->does == EAT)
-		philo_eats(philo);
+		philo_eats(philo, forks);
 	else if (philo->does == SLEEP)
 		philo_sleeps(philo);
 }
