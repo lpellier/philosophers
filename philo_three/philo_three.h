@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/08 15:31:15 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/09 15:57:20 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/10 11:19:50 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,13 @@ typedef struct s_philo
 	int				does;
 	int				philo_number;
 }					t_philo;
+
+typedef struct s_process
+{
+	t_philo			*philos;
+	int				philo_index;
+	int				nbr_of_philos;
+}					t_process;
 
 typedef struct s_state
 {

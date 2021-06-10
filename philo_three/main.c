@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 16:26:35 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/09 15:56:58 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/10 11:10:18 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,13 +47,16 @@ int	philo_routine(t_philo *philo)
 	while (philo->is_alive)
 	{
 		philo_does(philo, forks);
-		if (philo->info->meal_goal != -1 && \
+		if (philo->is_alive && philo->info->meal_goal != -1 && \
 			philo->number_of_meals >= philo->info->meal_goal)
 			break ;
 	}
 	if (philo->is_alive && philo->info->meal_goal != -1)
 		output(philo, "is done");
-	return (0);
+	if (philo->is_alive)
+		return (0);
+	else
+		return (1);
 }
 
 int	error_in_args(char **av)

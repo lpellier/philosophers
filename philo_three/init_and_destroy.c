@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 15:01:05 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/09 15:57:33 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/10 11:19:14 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,22 +26,37 @@ t_philo	create_philo(t_info *info, int index)
 	return (philo);
 }
 
+void	kill_all_processes(t_process *process)
+{
+	int		i;
+
+	i = 0;
+	while (i < process->nbr_of_philos)
+	{
+		kill(process->philos[i].cpid, SIGTERM);
+		i++;
+	}
+}
+
 void	*philo_process(void *arg)
 {
-	int		status;
-	t_philo *philo;
-	pid_t	cpid;
+	int			status;
+	t_process	*process;
+	pid_t		cpid;
 
-	philo = arg;
+	process = arg;
 	cpid = fork();
-	philo->cpid = cpid;
+	status = 1;
+	process->philos[process->philo_index].cpid = cpid;
 	if (cpid == -1)
 		return (NULL);
 	else if (cpid == 0)
-		exit(philo_routine(philo));
+		exit(philo_routine(&process->philos[process->philo_index]));
 	else
 	{
 		waitpid(cpid, &status, 0);
+		if (status)
+			kill_all_processes(process);
 		return (NULL);
 	}
 }
@@ -50,15 +65,27 @@ t_philo	*init_philos(t_info *info)
 {
 	int			i;
 	t_philo		*philos;
+	t_process	*processes;
 
-	i = 0;
 	if (ft_calloc((void **)&philos, info->number_of_philosophers, \
 		sizeof(t_philo)))
 		return (NULL);
+	if (ft_calloc((void **)&processes, info->number_of_philosophers, \
+		sizeof(t_process)))
+		return (NULL);
+	i = 0;
 	while (i < info->number_of_philosophers)
 	{
 		philos[i] = create_philo(info, i);
-		pthread_create(&philos[i].thread, NULL, philo_process, &philos[i]);
+		processes[i].philo_index = i;
+		processes[i].nbr_of_philos = info->number_of_philosophers;
+		i++;
+	}
+	i = 0;
+	while (i < info->number_of_philosophers)
+	{
+		processes[i].philos = philos;
+		pthread_create(&philos[i].thread, NULL, philo_process, &processes[i]);
 		i++;
 	}
 	return (philos);
