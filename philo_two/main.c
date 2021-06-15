@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 16:26:35 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 17:35:33 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/15 14:05:52 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ t_state	*init_state(char **av)
 	info->time_to_sleep = ft_atoi(av[4]);
 	info->meal_goal = -1;
 	info->everyone_is_alive = true;
-	info->forks = init_forks(info);
+	init_forks(info);
 	gettimeofday(&info->time_since_start, NULL);
 	if (av[5])
 		info->meal_goal = ft_atoi(av[5]);

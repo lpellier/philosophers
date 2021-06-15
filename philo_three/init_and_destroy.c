@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 15:01:05 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/10 11:19:14 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/15 14:30:37 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ void	kill_all_processes(t_process *process)
 	i = 0;
 	while (i < process->nbr_of_philos)
 	{
-		kill(process->philos[i].cpid, SIGTERM);
+		kill(process->philos[i].cpid, SIGKILL);
 		i++;
 	}
 }
@@ -97,8 +97,10 @@ void	init_forks(t_state *state)
 
 	i = 0;
 	sem_unlink("forks");
+	sem_unlink("lock");
 	state->forks = sem_open("forks", O_CREAT, 00644, \
 		state->info->number_of_philosophers);
+	state->lock = sem_open("lock", O_CREAT, 00644, 1);
 }
 
 void	join_philos(t_state *state)
@@ -120,5 +122,7 @@ void	destroy_forks(t_state *state)
 
 	i = 0;
 	sem_close(state->forks);
+	sem_close(state->lock);
 	sem_unlink("forks");
+	sem_unlink("lock");
 }

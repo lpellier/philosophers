@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/08 15:32:11 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 16:37:22 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/15 13:01:58 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,10 @@ void	output(t_philo *philo, char *msg)
 {
 	if (!philo->info->everyone_is_alive)
 		return ;
+	sem_wait(philo->info->lock);
 	printf("\x1b[36m%5ld \033[31m%d \x1b[36m%s\n", \
 		time_passed(&philo->time_since_last_meal), philo->philo_number, msg);
+	sem_post(philo->info->lock);
 }
 
 void	*check_time(void *arg)

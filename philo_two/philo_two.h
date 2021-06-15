@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/08 15:31:15 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 17:32:46 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/15 14:07:10 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ enum		e_actions
 typedef struct s_info
 {
 	struct timeval	time_since_start;
+	sem_t			*lock;
 	sem_t			*forks;
 	int				number_of_philosophers;
 	int				time_to_die;
@@ -69,7 +70,7 @@ void				secure_free(void *ptr);
 // init_and_destroy
 t_philo				create_philo(t_info *info, int index);
 t_philo				*init_philos(t_info *info);
-sem_t				*init_forks(t_info *info);
+void				init_forks(t_info *info);
 void				join_philos(t_state *state);
 void				destroy_forks(t_state *state);
 

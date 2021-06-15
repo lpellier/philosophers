@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 15:01:05 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 17:37:38 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/15 14:20:21 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,17 +43,19 @@ t_philo	*init_philos(t_info *info)
 	return (philos);
 }
 
-sem_t	*init_forks(t_info *info)
+void	init_forks(t_info *info)
 {
 	int				i;
-	sem_t			*forks;
 
 	i = 0;
-	if (ft_calloc((void **)&forks, 1, sizeof(sem_t)))
-		return (NULL);
+	if (ft_calloc((void **)&info->forks, 1, sizeof(sem_t)))
+		return ;
+	if (ft_calloc((void **)&info->lock, 1, sizeof(sem_t)))
+		return ;
 	sem_unlink("forks");
-	forks = sem_open("forks", O_CREAT, 00644, info->number_of_philosophers);
-	return (forks);
+	sem_unlink("lock");
+	info->forks = sem_open("forks", O_CREAT, 00644, info->number_of_philosophers);
+	info->lock = sem_open("lock", O_CREAT, 00644, 1);
 }
 
 void	join_philos(t_state *state)
@@ -74,5 +76,7 @@ void	destroy_forks(t_state *state)
 
 	i = 0;
 	sem_close(state->info->forks);
+	sem_close(state->info->lock);
 	sem_unlink("forks");
+	sem_unlink("lock");
 }

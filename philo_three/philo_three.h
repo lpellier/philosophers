@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/08 15:31:15 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/10 11:19:50 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/06/15 14:10:10 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,7 @@ typedef struct s_process
 
 typedef struct s_state
 {
+	sem_t			*lock;
 	sem_t			*forks;
 	t_philo			*philos;
 	t_info			*info;
