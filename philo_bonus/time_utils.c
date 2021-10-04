@@ -6,11 +6,11 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/08 15:32:11 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/15 14:31:19 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/10/04 11:29:32 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo_three.h"
+#include "philo_bonus.h"
 
 long	time_passed(struct timeval *ref)
 {

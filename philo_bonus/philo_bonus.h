@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   philo_three.h                                      :+:      :+:    :+:   */
+/*   philo_bonus.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/08 15:31:15 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/15 14:10:10 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/10/04 11:38:27 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PHILO_THREE_H
-# define PHILO_THREE_H
+#ifndef PHILO_BONUS_H
+# define PHILO_BONUS_H
 
 # include <stdlib.h>
 # include <stdio.h>
@@ -35,7 +35,7 @@ enum		e_actions
 typedef struct s_info
 {
 	struct timeval	time_since_start;
-	int				number_of_philosophers;
+	int				nbr_philo;
 	int				time_to_die;
 	int				time_to_eat;
 	int				time_to_sleep;
@@ -82,6 +82,10 @@ t_philo				*init_philos(t_info *info);
 void				init_forks(t_state *state);
 void				join_philos(t_state *state);
 void				destroy_forks(t_state *state);
+
+// process_init
+void				kill_all_processes(t_process *process);
+void				*philo_process(void *arg);
 
 // philo_does
 void				philo_thinks(t_philo *philo);

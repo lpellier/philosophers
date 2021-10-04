@@ -6,11 +6,11 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/08 15:30:49 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 17:13:19 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/10/04 11:29:32 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo_one.h"
+#include "philo_bonus.h"
 
 void	philo_thinks(t_philo *philo)
 {
@@ -18,23 +18,24 @@ void	philo_thinks(t_philo *philo)
 	philo->does = FORK;
 }
 
-void	philo_takes_forks(t_philo *philo)
+void	philo_takes_forks(t_philo *philo, sem_t *forks)
 {
+	sem_wait(forks);
 	output(philo, "has taken a fork");
-	pthread_mutex_lock(philo->adjacent_forks[1]);
+	sem_wait(forks);
 	output(philo, "has taken a fork");
 	philo->does = EAT;
 }
 
-void	philo_eats(t_philo *philo)
+void	philo_eats(t_philo *philo, sem_t *forks)
 {
 	pthread_t	timer;
 
 	gettimeofday(&philo->time_since_last_meal, NULL);
 	output(philo, "is eating");
 	better_usleep(philo->info->time_to_eat);
-	pthread_mutex_unlock(philo->adjacent_forks[0]);
-	pthread_mutex_unlock(philo->adjacent_forks[1]);
+	sem_post(forks);
+	sem_post(forks);
 	philo->number_of_meals++;
 	if (philo->info->meal_goal != -1 && \
 		philo->number_of_meals >= philo->info->meal_goal)
@@ -51,14 +52,14 @@ void	philo_sleeps(t_philo *philo)
 	philo->does = THINK;
 }
 
-void	philo_does(t_philo *philo)
+void	philo_does(t_philo *philo, sem_t *forks)
 {
 	if (philo->does == THINK)
 		philo_thinks(philo);
 	else if (philo->does == FORK)
-		philo_takes_forks(philo);
+		philo_takes_forks(philo, forks);
 	else if (philo->does == EAT)
-		philo_eats(philo);
+		philo_eats(philo, forks);
 	else if (philo->does == SLEEP)
 		philo_sleeps(philo);
 }

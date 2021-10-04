@@ -6,11 +6,11 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 15:00:16 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 16:54:50 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/10/04 11:20:46 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo_three.h"
+#include "philo.h"
 
 void	secure_free(void *ptr)
 {

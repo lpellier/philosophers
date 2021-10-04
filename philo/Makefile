@@ -6,13 +6,13 @@
 #    By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/05/28 16:29:51 by lpellier          #+#    #+#              #
-#    Updated: 2021/06/08 17:09:24 by lpellier         ###   ########.fr        #
+#    Updated: 2021/10/04 11:22:33 by lpellier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = philo_three
+NAME = philo
 
-CFLAGS = -Wall -Werror -Wextra -pedantic -g3
+CFLAGS = -Wall -Werror -Wextra -pedantic
 
 CC = clang
 

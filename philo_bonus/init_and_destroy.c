@@ -6,11 +6,11 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 15:01:05 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/15 14:30:37 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/10/04 11:39:02 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo_three.h"
+#include "philo_bonus.h"
 
 t_philo	create_philo(t_info *info, int index)
 {
@@ -26,63 +26,26 @@ t_philo	create_philo(t_info *info, int index)
 	return (philo);
 }
 
-void	kill_all_processes(t_process *process)
-{
-	int		i;
-
-	i = 0;
-	while (i < process->nbr_of_philos)
-	{
-		kill(process->philos[i].cpid, SIGKILL);
-		i++;
-	}
-}
-
-void	*philo_process(void *arg)
-{
-	int			status;
-	t_process	*process;
-	pid_t		cpid;
-
-	process = arg;
-	cpid = fork();
-	status = 1;
-	process->philos[process->philo_index].cpid = cpid;
-	if (cpid == -1)
-		return (NULL);
-	else if (cpid == 0)
-		exit(philo_routine(&process->philos[process->philo_index]));
-	else
-	{
-		waitpid(cpid, &status, 0);
-		if (status)
-			kill_all_processes(process);
-		return (NULL);
-	}
-}
-
 t_philo	*init_philos(t_info *info)
 {
 	int			i;
 	t_philo		*philos;
 	t_process	*processes;
 
-	if (ft_calloc((void **)&philos, info->number_of_philosophers, \
-		sizeof(t_philo)))
+	if (ft_calloc((void **)&philos, info->nbr_philo, sizeof(t_philo)))
 		return (NULL);
-	if (ft_calloc((void **)&processes, info->number_of_philosophers, \
-		sizeof(t_process)))
+	if (ft_calloc((void **)&processes, info->nbr_philo, sizeof(t_process)))
 		return (NULL);
 	i = 0;
-	while (i < info->number_of_philosophers)
+	while (i < info->nbr_philo)
 	{
 		philos[i] = create_philo(info, i);
 		processes[i].philo_index = i;
-		processes[i].nbr_of_philos = info->number_of_philosophers;
+		processes[i].nbr_of_philos = info->nbr_philo;
 		i++;
 	}
 	i = 0;
-	while (i < info->number_of_philosophers)
+	while (i < info->nbr_philo)
 	{
 		processes[i].philos = philos;
 		pthread_create(&philos[i].thread, NULL, philo_process, &processes[i]);
@@ -99,7 +62,7 @@ void	init_forks(t_state *state)
 	sem_unlink("forks");
 	sem_unlink("lock");
 	state->forks = sem_open("forks", O_CREAT, 00644, \
-		state->info->number_of_philosophers);
+		state->info->nbr_philo);
 	state->lock = sem_open("lock", O_CREAT, 00644, 1);
 }
 
@@ -108,7 +71,7 @@ void	join_philos(t_state *state)
 	int		i;
 
 	i = 0;
-	while (i < state->info->number_of_philosophers)
+	while (i < state->info->nbr_philo)
 	{
 		pthread_join(state->philos[i].thread, NULL);
 		kill(state->philos[i].cpid, SIGINT);

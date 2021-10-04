@@ -6,11 +6,11 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/29 15:00:16 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 15:31:48 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/10/04 11:29:38 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo_one.h"
+#include "philo_bonus.h"
 
 void	secure_free(void *ptr)
 {

@@ -6,11 +6,11 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 16:26:35 by lpellier          #+#    #+#             */
-/*   Updated: 2021/06/08 16:22:39 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/10/04 11:20:45 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo_one.h"
+#include "philo.h"
 
 t_state	*init_state(char **av)
 {
