@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/08 15:31:15 by lpellier          #+#    #+#             */
-/*   Updated: 2021/10/04 11:38:27 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/11/12 17:06:48 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,9 @@
 # include <stdbool.h>
 # include <pthread.h>
 # include <unistd.h>
+# include <sys/wait.h>
 # include <sys/time.h>
+# include <sys/types.h>
 # include <semaphore.h>
 # include <fcntl.h>
 # include <sys/stat.h>
