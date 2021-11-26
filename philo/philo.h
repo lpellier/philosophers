@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/08 15:31:15 by lpellier          #+#    #+#             */
-/*   Updated: 2021/10/04 11:20:16 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/11/26 16:37:03 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ typedef struct s_info
 {
 	struct timeval	time_since_start;
 	pthread_mutex_t	output_lock;
+	pthread_mutex_t	var_lock;
 	int				number_of_philosophers;
 	int				time_to_die;
 	int				time_to_eat;
@@ -47,6 +48,11 @@ typedef struct s_philo
 	t_info			*info;
 	struct timeval	time_since_last_meal;
 	int				number_of_meals;
+	int				time_to_die;
+	int				time_to_eat;
+	int				time_to_sleep;
+	int				meal_goal;
+	int				holding;
 	int				does;
 	int				philo_number;
 }					t_philo;
@@ -57,6 +63,9 @@ typedef struct s_state
 	t_philo			*philos;
 	t_info			*info;
 }					t_state;
+
+// int		access_var(pthread_mutex_t lock, int var);
+// void	modify_var(pthread_mutex_t lock, int * var, int replace);
 
 // utils
 void				ft_bzero(void *s, size_t n);

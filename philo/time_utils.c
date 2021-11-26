@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/06/08 15:32:11 by lpellier          #+#    #+#             */
-/*   Updated: 2021/10/04 11:20:46 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/11/26 17:09:11 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,12 +26,15 @@ long	time_passed(struct timeval *ref)
 
 void	output(t_philo *philo, char *msg)
 {
-	pthread_mutex_lock(&philo->info->output_lock);
+
+	pthread_mutex_lock(&philo->info->var_lock);
 	if (!philo->info->everyone_is_alive)
 	{
-		pthread_mutex_unlock(&philo->info->output_lock);
+		pthread_mutex_unlock(&philo->info->var_lock);
 		return ;
 	}
+	pthread_mutex_unlock(&philo->info->var_lock);
+	pthread_mutex_lock(&philo->info->output_lock);
 	printf("\x1b[36m%5ld \033[31m%d \x1b[36m%s\n", \
 		time_passed(&philo->time_since_last_meal), philo->philo_number, msg);
 	pthread_mutex_unlock(&philo->info->output_lock);
@@ -42,17 +45,34 @@ void	*check_time(void *arg)
 	t_philo			*philo;
 
 	philo = arg;
-	while (philo->does != EAT)
+	while (1)
 	{
-		if (time_passed(&philo->time_since_last_meal) > \
-			philo->info->time_to_die)
+		pthread_mutex_lock(&philo->info->var_lock);
+		if (!philo->info->everyone_is_alive)
 		{
-			if (!philo->info->everyone_is_alive)
-				return (NULL);
-			output(philo, "has died");
-			philo->info->everyone_is_alive = false;
+			if (philo->holding >= 1)
+				pthread_mutex_unlock(philo->adjacent_forks[0]);
+			if (philo->holding >= 2)
+				pthread_mutex_unlock(philo->adjacent_forks[1]);
+			philo->holding = 0;
+			pthread_mutex_unlock(&philo->info->var_lock);
 			return (NULL);
 		}
+		if (time_passed(&philo->time_since_last_meal) > philo->time_to_die)
+		{
+			if (!philo->info->everyone_is_alive)
+			{
+				pthread_mutex_unlock(&philo->info->var_lock);
+				return (NULL);
+			}
+			pthread_mutex_unlock(&philo->info->var_lock);
+			output(philo, "has died");
+			pthread_mutex_lock(&philo->info->var_lock);
+			philo->info->everyone_is_alive = false;
+			pthread_mutex_unlock(&philo->info->var_lock);
+			return (NULL);
+		}
+		pthread_mutex_unlock(&philo->info->var_lock);
 	}
 	return (NULL);
 }

@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/05/28 16:26:35 by lpellier          #+#    #+#             */
-/*   Updated: 2021/10/04 11:20:45 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/11/26 17:10:11 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,15 +45,28 @@ void	*philo_routine(void *arg)
 	gettimeofday(&philo->time_since_last_meal, NULL);
 	pthread_create(&timer, NULL, &check_time, (void *)philo);
 	pthread_detach(timer);
+	pthread_mutex_lock(&philo->info->var_lock);
 	while (philo->info->everyone_is_alive)
 	{
+		pthread_mutex_unlock(&philo->info->var_lock);
 		philo_does(philo);
-		if (philo->info->meal_goal != -1 && \
-			philo->number_of_meals >= philo->info->meal_goal)
+		if (philo->meal_goal != -1 && \
+			philo->number_of_meals >= philo->meal_goal)
 			break ;
+		pthread_mutex_lock(&philo->info->var_lock);
 	}
-	if (philo->info->everyone_is_alive && philo->info->meal_goal != -1)
+	if (philo->holding >= 1)
+		pthread_mutex_unlock(philo->adjacent_forks[0]);
+	if (philo->holding >= 2)
+		pthread_mutex_unlock(philo->adjacent_forks[1]);
+	philo->holding = 0;
+	if (philo->info->everyone_is_alive && philo->meal_goal != -1)
+	{
+		pthread_mutex_unlock(&philo->info->var_lock);
 		output(philo, "is done");
+		return (NULL);
+	}
+	pthread_mutex_unlock(&philo->info->var_lock);
 	return (NULL);
 }
 
