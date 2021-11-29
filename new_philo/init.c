@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/26 17:42:44 by lpellier          #+#    #+#             */
-/*   Updated: 2021/11/26 19:00:05 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/11/29 16:51:09 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,8 @@ t_philo	create_philo(t_args args, pthread_mutex_t *forks, int index)
 	t_philo	philo;
 
 	philo.philo_index = index + 1;
-	philo.adjacent_forks[0] = &forks[philo.philo_index - 1];
-	philo.adjacent_forks[1] = &forks[philo.philo_index % args.nbr_of_philos];
+	philo.adjacent_forks[0] = &forks[index];
+	philo.adjacent_forks[1] = &forks[(index + 1) % (args.nbr_of_philos)];
 	philo.does = SLEEP;
 	if (philo.philo_index % 2 == 0)
 		philo.does = FORK;

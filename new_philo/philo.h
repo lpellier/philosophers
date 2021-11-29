@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/26 17:13:05 by lpellier          #+#    #+#             */
-/*   Updated: 2021/11/26 18:57:31 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/11/29 16:37:04 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,21 @@ typedef struct  s_philo
 	int				meals_eaten;
 	int				philo_index;
 }               t_philo;
+
+// typedef struct  s_fork
+// {
+// 	pthread_mutex_t	*fork;
+// 	int				fork_index;
+// }               t_fork;
+
+// typedef struct  s_list
+// {
+// 	t_philo			philo;
+// 	pthread_mutex_t	*left_fork;
+// 	pthread_mutex_t	*right_fork;
+
+// 	t_list			*next;
+// }               t_list;
 
 void				better_usleep(int time);
 void				philo_thinks(t_philo *philo);

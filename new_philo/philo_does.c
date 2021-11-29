@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/26 18:46:39 by lpellier          #+#    #+#             */
-/*   Updated: 2021/11/26 19:03:16 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/11/29 17:55:50 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,26 +48,28 @@ void	philo_thinks(t_philo *philo)
 void	philo_takes_forks(t_philo *philo)
 {
 	pthread_mutex_lock(philo->adjacent_forks[0]);
-	output(philo, "has taken a fork");
+	output(philo, "has taken left fork");
 	philo->holding_forks++;
 	pthread_mutex_lock(philo->adjacent_forks[1]);
-	output(philo, "has taken a fork");
+	output(philo, "has taken right fork");
 	philo->holding_forks++;
 	philo->does = EAT;
 }
 
 void	philo_eats(t_philo *philo)
 {
-	pthread_mutex_lock(philo->args.output_lock);
+	// pthread_mutex_lock(philo->args.output_lock);
 	gettimeofday(&philo->time_since_last_meal, NULL);
-	pthread_mutex_unlock(philo->args.output_lock);
+	// pthread_mutex_unlock(philo->args.output_lock);
 	output(philo, "is eating");
 	better_usleep(philo->args.time_to_eat);
-	pthread_mutex_unlock(philo->adjacent_forks[0]);
-	philo->holding_forks++;
 	pthread_mutex_unlock(philo->adjacent_forks[1]);
-	philo->holding_forks++;
+	philo->holding_forks--;
+	pthread_mutex_unlock(philo->adjacent_forks[0]);
+	philo->holding_forks--;
+	pthread_mutex_lock(philo->args.output_lock);
 	philo->meals_eaten++;
+	pthread_mutex_unlock(philo->args.output_lock);
 	philo->does = SLEEP;
 }
 
