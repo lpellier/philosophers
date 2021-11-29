@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/26 17:40:21 by lpellier          #+#    #+#             */
-/*   Updated: 2021/11/26 19:03:40 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/11/29 18:24:35 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,24 @@ void	better_usleep(int time)
 		usleep(500);
 }
 
+int	ft_strlen(char *str)
+{
+	int	i;
+
+	i = 0;
+	while (str[i])
+		i++;
+	return (i);
+}
+
 int	error_in_args(char **av)
 {
 	int	i;
 	int	j;
 
 	i = 1;
+	if (ft_atoi(av[i]) <= 1)
+		return (EXIT_FAILURE);
 	while (av[i])
 	{
 		j = 0;
@@ -36,16 +48,18 @@ int	error_in_args(char **av)
 				return (EXIT_FAILURE);
 			j++;
 		}
+		if (ft_strlen(av[i]) > INTMAX_LEN + 1 || ft_atoi(av[i]) > INT_MAX)
+			return (EXIT_FAILURE);
 		i++;
 	}
 	return (EXIT_SUCCESS);
 }
 
-int	ft_atoi(const char *str)
+long	ft_atoi(const char *str)
 {
 	int	neg;
 	int	i;
-	int	num;
+	long	num;
 
 	i = 0;
 	neg = 1;

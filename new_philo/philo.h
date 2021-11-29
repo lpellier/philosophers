@@ -6,12 +6,14 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/26 17:13:05 by lpellier          #+#    #+#             */
-/*   Updated: 2021/11/29 16:37:04 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/11/29 18:20:48 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PHILO_H
 # define PHILO_H
+
+# define INTMAX_LEN 10
 
 # include <stdlib.h>
 # include <stdio.h>
@@ -19,6 +21,7 @@
 # include <pthread.h>
 # include <unistd.h>
 # include <sys/time.h>
+# include <limits.h>
 
 enum		e_actions
 {
@@ -53,21 +56,6 @@ typedef struct  s_philo
 	int				philo_index;
 }               t_philo;
 
-// typedef struct  s_fork
-// {
-// 	pthread_mutex_t	*fork;
-// 	int				fork_index;
-// }               t_fork;
-
-// typedef struct  s_list
-// {
-// 	t_philo			philo;
-// 	pthread_mutex_t	*left_fork;
-// 	pthread_mutex_t	*right_fork;
-
-// 	t_list			*next;
-// }               t_list;
-
 void				better_usleep(int time);
 void				philo_thinks(t_philo *philo);
 void				philo_takes_forks(t_philo *philo);
@@ -91,7 +79,7 @@ void	destroy_philos(t_args args, t_philo *philos);
 
 // utils
 int	error_in_args(char **av);
-int	ft_atoi(const char *str);
+long	ft_atoi(const char *str);
 int	fill_args(char **av, t_args *args);
 
 #endif
