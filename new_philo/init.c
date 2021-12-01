@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/26 17:42:44 by lpellier          #+#    #+#             */
-/*   Updated: 2021/11/29 16:51:09 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/11/30 15:40:00 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ t_philo	create_philo(t_args args, pthread_mutex_t *forks, int index)
 t_philo	*init_philos(t_args args, pthread_mutex_t *forks)
 {
 	t_philo	*philos;
-	int	index;
+	int		index;
 
 	index = 0;
 	philos = malloc(sizeof(t_philo) * args.nbr_of_philos);
@@ -63,7 +63,8 @@ t_philo	*init_philos(t_args args, pthread_mutex_t *forks)
 	while (index < args.nbr_of_philos)
 	{
 		philos[index] = create_philo(args, forks, index);
-		pthread_create(&philos[index].thread, NULL, philo_routine, &philos[index]);
+		pthread_create(\
+		&philos[index].thread, NULL, philo_routine, &philos[index]);
 		index++;
 	}
 	return (philos);

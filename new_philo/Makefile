@@ -6,7 +6,7 @@
 #    By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/05/28 16:29:51 by lpellier          #+#    #+#              #
-#    Updated: 2021/11/26 18:52:56 by lpellier         ###   ########.fr        #
+#    Updated: 2021/11/30 16:03:56 by lpellier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,7 +21,8 @@ SRCS = \
 		init.c \
 		utils.c \
 		destroy.c \
-		philo_does.c
+		philo_does.c \
+		philo_utils.c
 
 OBJS = $(SRCS:.c=.o)
 

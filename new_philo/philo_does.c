@@ -6,38 +6,11 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/26 18:46:39 by lpellier          #+#    #+#             */
-/*   Updated: 2021/11/29 18:11:53 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/11/30 16:03:14 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
-
-long	time_passed(struct timeval *ref)
-{
-	struct timeval	timer;
-
-	gettimeofday(&timer, NULL);
-	if (ref)
-		return ((double)(timer.tv_sec - ref->tv_sec) *1000 + \
-			(long)(timer.tv_usec - ref->tv_usec) *0.001);
-	else
-		return ((double)(timer.tv_sec * 1000) + (long)(timer.tv_usec * 0.001));
-}
-
-void	output(t_philo *philo, char *msg)
-{
-	int	everyone_alive;
-
-	pthread_mutex_lock(philo->args.output_lock);
-	everyone_alive = *(philo->args.everyone_is_alive);
-	pthread_mutex_unlock(philo->args.output_lock);
-	if (!everyone_alive)
-		return ;
-	pthread_mutex_lock(philo->args.output_lock);
-	printf("\x1b[36m%5ld \033[31m%d \x1b[36m%s\n", \
-		time_passed(&philo->time_since_last_meal), philo->philo_index, msg);
-	pthread_mutex_unlock(philo->args.output_lock);
-}
 
 void	philo_thinks(t_philo *philo)
 {
@@ -82,7 +55,7 @@ void	philo_does(t_philo *philo)
 {
 	if (philo->does == THINK)
 		philo_thinks(philo);
-	else if  (philo->does == FORK)
+	else if (philo->does == FORK)
 		philo_takes_forks(philo);
 	else if (philo->does == EAT)
 		philo_eats(philo);

@@ -6,13 +6,13 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/26 17:42:06 by lpellier          #+#    #+#             */
-/*   Updated: 2021/11/29 17:30:04 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/11/30 15:30:02 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	secure_free(void ** ptr)
+void	secure_free(void **ptr)
 {
 	if (*ptr)
 	{
