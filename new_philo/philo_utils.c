@@ -6,7 +6,7 @@
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/30 16:01:21 by lpellier          #+#    #+#             */
-/*   Updated: 2021/11/30 16:03:43 by lpellier         ###   ########.fr       */
+/*   Updated: 2021/12/02 10:33:56 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,8 +50,8 @@ long	time_passed(struct timeval *ref)
 
 	gettimeofday(&timer, NULL);
 	if (ref)
-		return ((double)(timer.tv_sec - ref->tv_sec) *1000 + \
-			(long)(timer.tv_usec - ref->tv_usec) *0.001);
+		return ((double)(timer.tv_sec - ref->tv_sec) * 1000 + \
+			(long)(timer.tv_usec - ref->tv_usec) * 0.001);
 	else
 		return ((double)(timer.tv_sec * 1000) + (long)(timer.tv_usec * 0.001));
 }
