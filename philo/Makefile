@@ -6,7 +6,7 @@
 #    By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/05/28 16:29:51 by lpellier          #+#    #+#              #
-#    Updated: 2021/10/04 11:22:33 by lpellier         ###   ########.fr        #
+#    Updated: 2021/11/30 16:03:56 by lpellier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,11 +16,13 @@ CFLAGS = -Wall -Werror -Wextra -pedantic
 
 CC = clang
 
-SRCS = main.c \
+SRCS = \
+		main.c \
+		init.c \
 		utils.c \
-		time_utils.c \
+		destroy.c \
 		philo_does.c \
-		init_and_destroy.c
+		philo_utils.c
 
 OBJS = $(SRCS:.c=.o)
 

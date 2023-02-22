@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/06/08 15:30:49 by lpellier          #+#    #+#             */
-/*   Updated: 2021/10/04 11:29:32 by lpellier         ###   ########.fr       */
+/*   Created: 2021/11/26 18:46:39 by lpellier          #+#    #+#             */
+/*   Updated: 2021/12/02 11:42:41 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,33 +22,32 @@ void	philo_takes_forks(t_philo *philo, sem_t *forks)
 {
 	sem_wait(forks);
 	output(philo, "has taken a fork");
+	philo->holding_forks++;
 	sem_wait(forks);
 	output(philo, "has taken a fork");
+	philo->holding_forks++;
 	philo->does = EAT;
 }
 
 void	philo_eats(t_philo *philo, sem_t *forks)
 {
-	pthread_t	timer;
-
 	gettimeofday(&philo->time_since_last_meal, NULL);
 	output(philo, "is eating");
-	better_usleep(philo->info->time_to_eat);
+	better_usleep(philo->args.time_to_eat);
 	sem_post(forks);
+	philo->holding_forks--;
 	sem_post(forks);
-	philo->number_of_meals++;
-	if (philo->info->meal_goal != -1 && \
-		philo->number_of_meals >= philo->info->meal_goal)
-		return ;
-	pthread_create(&timer, NULL, &check_time, philo);
-	pthread_detach(timer);
+	philo->holding_forks--;
+	sem_wait(philo->args.output_lock);
+	philo->meals_eaten++;
+	sem_post(philo->args.output_lock);
 	philo->does = SLEEP;
 }
 
 void	philo_sleeps(t_philo *philo)
 {
 	output(philo, "is sleeping");
-	better_usleep(philo->info->time_to_sleep);
+	better_usleep(philo->args.time_to_sleep);
 	philo->does = THINK;
 }
 

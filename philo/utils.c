@@ -5,62 +5,28 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/05/29 15:00:16 by lpellier          #+#    #+#             */
-/*   Updated: 2021/10/04 11:20:46 by lpellier         ###   ########.fr       */
+/*   Created: 2021/11/26 17:40:21 by lpellier          #+#    #+#             */
+/*   Updated: 2021/11/30 16:03:38 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	secure_free(void *ptr)
+int	ft_strlen(char *str)
 {
-	if (ptr)
-		free(ptr);
-	ptr = NULL;
-}
-
-void	ft_bzero(void *s, size_t n)
-{
-	unsigned char	*buffer;
-	size_t			i;
-
-	if (s != NULL)
-	{
-		i = 0;
-		buffer = (unsigned char *)s;
-		while (i < n)
-		{
-			buffer[i] = 0;
-			i++;
-		}
-	}
-}
-
-int	a_malloc(void **ptr, int size)
-{
-	*ptr = malloc(size);
-	if (!(*ptr))
-		return (1);
-	return (0);
-}
-
-int	ft_calloc(void **ptr, size_t count, size_t size)
-{
-	if (count != 0 && size != 0)
-	{
-		if (a_malloc(ptr, count * size))
-			return (1);
-		ft_bzero(*ptr, count * size);
-		return (0);
-	}
-	return (1);
-}
-
-int	ft_atoi(const char *str)
-{
-	int	neg;
 	int	i;
-	int	num;
+
+	i = 0;
+	while (str[i])
+		i++;
+	return (i);
+}
+
+long	ft_atoi(const char *str)
+{
+	int		neg;
+	int		i;
+	long	num;
 
 	i = 0;
 	neg = 1;

@@ -5,95 +5,116 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/05/28 16:26:35 by lpellier          #+#    #+#             */
-/*   Updated: 2021/10/04 11:38:30 by lpellier         ###   ########.fr       */
+/*   Created: 2021/11/26 17:19:49 by lpellier          #+#    #+#             */
+/*   Updated: 2021/12/02 14:30:33 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_bonus.h"
 
-t_state	*init_state(char **av)
+void	check_philo_death(t_philo *philo, int everyone_alive)
 {
-	t_state	*state;
-	t_info	*info;
-
-	if ((ft_calloc((void **)&state, 1, sizeof(t_state))))
-		return (NULL);
-	if ((ft_calloc((void **)&info, 1, sizeof(t_info))))
-		return (NULL);
-	info->nbr_philo = ft_atoi(av[1]);
-	info->time_to_die = ft_atoi(av[2]);
-	info->time_to_eat = ft_atoi(av[3]);
-	info->time_to_sleep = ft_atoi(av[4]);
-	info->meal_goal = -1;
-	gettimeofday(&info->time_since_start, NULL);
-	if (av[5])
-		info->meal_goal = ft_atoi(av[5]);
-	state->info = info;
-	init_forks(state);
-	state->philos = init_philos(info);
-	return (state);
+	if (time_passed(&philo->time_since_last_meal) > philo->args.time_to_die)
+	{
+		if (!everyone_alive || philo->meals_eaten == philo->args.meal_goal)
+		{
+			sem_post(philo->args.output_lock);
+			return ;
+		}
+		sem_post(philo->args.output_lock);
+		output(philo, "has died");
+		sem_wait(philo->args.output_lock);
+		*(philo->args.everyone_is_alive) = 0;
+		sem_post(philo->args.output_lock);
+	}
 }
 
-int	philo_routine(t_philo *philo)
+void	*check_time(void *arg)
 {
-	pthread_t	timer;
-	sem_t		*forks;
+	t_philo	*philo;
+	int		everyone_alive;
 
-	forks = sem_open("forks", O_RDWR);
-	gettimeofday(&philo->time_since_last_meal, NULL);
-	pthread_create(&timer, NULL, &check_time, (void *)philo);
-	pthread_detach(timer);
-	while (philo->is_alive)
+	philo = arg;
+	everyone_alive = 1;
+	while (everyone_alive)
+	{
+		sem_wait(philo->args.output_lock);
+		if (!everyone_alive || philo->meals_eaten == philo->args.meal_goal)
+		{
+			sem_post(philo->args.output_lock);
+			return (NULL);
+		}
+		check_philo_death(philo, everyone_alive);
+		everyone_alive = *(philo->args.everyone_is_alive);
+		sem_post(philo->args.output_lock);
+	}
+	return (NULL);
+}
+
+void	loop_routine(int *everyone_alive, t_philo *philo, sem_t *forks)
+{
+	while (*everyone_alive)
 	{
 		philo_does(philo, forks);
-		if (philo->is_alive && philo->info->meal_goal != -1 && \
-			philo->number_of_meals >= philo->info->meal_goal)
+		if (philo->args.meal_goal != -1 && \
+			philo->meals_eaten >= philo->args.meal_goal)
 			break ;
+		sem_wait(philo->args.output_lock);
+		*everyone_alive = *(philo->args.everyone_is_alive);
+		sem_post(philo->args.output_lock);
 	}
-	if (philo->is_alive && philo->info->meal_goal != -1)
-		output(philo, "is done");
-	if (philo->is_alive)
-		return (0);
-	else
-		return (1);
 }
 
-int	error_in_args(char **av)
+int	philo_routine(void *arg)
 {
-	int	i;
-	int	j;
+	pthread_t	timer;
+	t_philo		*philo;
+	sem_t		*forks;
+	int			everyone_alive;
 
-	i = 1;
-	while (av[i])
-	{
-		j = 0;
-		while (av[i][j])
-		{
-			if (!(av[i][j] >= 48 && av[i][j] <= 57))
-				return (EXIT_FAILURE);
-			j++;
-		}
-		i++;
-	}
-	return (EXIT_SUCCESS);
+	philo = (t_philo *)arg;
+	forks = sem_open("forks", O_RDWR);
+	gettimeofday(&philo->time_since_last_meal, NULL);
+	sem_wait(philo->args.output_lock);
+	pthread_create(&timer, NULL, &check_time, (void *)philo);
+	sem_post(philo->args.output_lock);
+	everyone_alive = 1;
+	loop_routine(&everyone_alive, philo, forks);
+	if (philo->holding_forks >= 1)
+		sem_post(forks);
+	if (philo->holding_forks >= 2)
+		sem_post(forks);
+	philo->holding_forks = 0;
+	if (everyone_alive && philo->args.meal_goal != -1)
+		output(philo, "is done");
+	pthread_join(timer, NULL);
+	// destroy_forks(philo->args, forks);
+	sem_wait(philo->args.stop_program);
+	exit(1);
 }
 
 int	main(int ac, char **av)
 {
-	t_state			*state;
+	t_args			args;
+	t_philo			*philos;
+	sem_t			*forks;
 
-	if ((ac != 5 && ac != 6) || error_in_args(av))
+	if ((ac != 5 && ac != 6) || error_in_args(av) || fill_args(av, &args))
 	{
-		printf("arg error\nnbr_philo | ");
+		printf("arg error\nnumber_of_philosophers | ");
 		printf("time_to_die | time_to_eat | time_to_sleep | ");
 		printf("[number_of_time_each_philosopher_must_eat]\n");
 		exit(EXIT_FAILURE);
 	}
-	state = init_state(av);
-	join_philos(state);
-	destroy_forks(state);
-	secure_free(state->info);
-	secure_free(state->philos);
-	exit(EXIT_SUCCESS);
+	forks = init_forks(&args);
+	if (!forks)
+		exit(EXIT_FAILURE);
+	philos = init_philos(args);
+	if (!philos)
+	{
+		destroy_forks(args, forks);
+		exit(EXIT_FAILURE);
+	}
+	destroy_philos(args, philos);
+	destroy_forks(args, forks);
 }

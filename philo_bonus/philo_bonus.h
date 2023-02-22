@@ -1,17 +1,7 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   philo_bonus.h                                      :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/06/08 15:31:15 by lpellier          #+#    #+#             */
-/*   Updated: 2021/11/12 17:06:48 by lpellier         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+#ifndef PHILO_H
+# define PHILO_H
 
-#ifndef PHILO_BONUS_H
-# define PHILO_BONUS_H
+# define INTMAX_LEN 10
 
 # include <stdlib.h>
 # include <stdio.h>
@@ -25,6 +15,7 @@
 # include <fcntl.h>
 # include <sys/stat.h>
 # include <signal.h>
+# include <limits.h>
 
 enum		e_actions
 {
@@ -34,77 +25,63 @@ enum		e_actions
 	SLEEP
 };
 
-typedef struct s_info
+typedef struct s_args
 {
-	struct timeval	time_since_start;
-	int				nbr_philo;
-	int				time_to_die;
-	int				time_to_eat;
-	int				time_to_sleep;
-	int				meal_goal;
-}					t_info;
+	sem_t		*output_lock;
+	sem_t		*lock;
+	sem_t		*stop_program;
+	int			*everyone_is_alive;
+
+	int			nbr_of_philos;
+	int			time_to_die;
+	int			time_to_eat;
+	int			time_to_sleep;
+	int			meal_goal;
+}				t_args;
 
 typedef struct s_philo
 {
 	pid_t			cpid;
-	pthread_t		thread;
-	t_info			*info;
+	t_args			args;
 	struct timeval	time_since_last_meal;
-	int				is_alive;
-	int				number_of_meals;
+	int				holding_forks;
 	int				does;
-	int				philo_number;
-}					t_philo;
-
-typedef struct s_process
-{
-	t_philo			*philos;
+	int				meals_eaten;
 	int				philo_index;
-	int				nbr_of_philos;
-}					t_process;
+}				t_philo;
 
-typedef struct s_state
-{
-	sem_t			*lock;
-	sem_t			*forks;
-	t_philo			*philos;
-	t_info			*info;
-}					t_state;
+// main
+int					philo_routine(void *arg);
+void				loop_routine(int *everyone_alive, t_philo *philo, sem_t *forks);
+void				*check_time(void *arg);
+void				check_philo_death(t_philo *philo, int everyone_alive);
 
-// utils
-void				ft_bzero(void *s, size_t n);
-int					a_malloc(void **ptr, int size);
-int					ft_calloc(void **ptr, size_t count, size_t size);
-int					ft_atoi(const char *str);
-void				secure_free(void *ptr);
+// philo utils
+void				output(t_philo *philo, char *msg);
+long				time_passed(struct timeval *ref);
+int					fill_args(char **av, t_args *args);
+void				better_usleep(int time);
+int					error_in_args(char **av);
 
-// init_and_destroy
-t_philo				create_philo(t_info *info, int index);
-t_philo				*init_philos(t_info *info);
-void				init_forks(t_state *state);
-void				join_philos(t_state *state);
-void				destroy_forks(t_state *state);
-
-// process_init
-void				kill_all_processes(t_process *process);
-void				*philo_process(void *arg);
-
-// philo_does
+// philo does
+void				philo_does(t_philo *philo, sem_t *forks);
 void				philo_thinks(t_philo *philo);
 void				philo_takes_forks(t_philo *philo, sem_t *forks);
 void				philo_eats(t_philo *philo, sem_t *forks);
 void				philo_sleeps(t_philo *philo);
-void				philo_does(t_philo *philo, sem_t *forks);
 
-// time_utils
-long				time_passed(struct timeval *ref);
-void				*check_time(void *arg);
-void				output(t_philo *philo, char *msg);
-void				better_usleep(int time);
+// init
+sem_t				*init_forks(t_args *args);
+t_philo				create_philo(t_args args, int index);
+t_philo				*init_philos(t_args args);
 
-// main
-t_state				*init_state(char **av);
-int					philo_routine(t_philo *philo);
-int					error_in_args(char **av);
+// destroy
+void				secure_free(void **ptr);
+void				destroy_forks(t_args args, sem_t *forks);
+void				destroy_philos(t_args args, t_philo *philos);
+
+// utils
+int					ft_strlen(char *str);
+long				ft_atoi(const char *str);
 
 #endif

@@ -6,22 +6,23 @@
 #    By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/05/28 16:29:51 by lpellier          #+#    #+#              #
-#    Updated: 2021/10/04 11:33:42 by lpellier         ###   ########.fr        #
+#    Updated: 2021/12/02 11:52:09 by lpellier         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = philo_bonus
+NAME = philo
 
 CFLAGS = -Wall -Werror -Wextra -pedantic
 
 CC = clang
 
-SRCS = main.c \
+SRCS = \
+		main.c \
+		init.c \
 		utils.c \
-		time_utils.c \
+		destroy.c \
 		philo_does.c \
-		init_and_destroy.c \
-		process_init.c
+		philo_utils.c
 
 OBJS = $(SRCS:.c=.o)
 

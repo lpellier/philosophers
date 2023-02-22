@@ -5,13 +5,15 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: lpellier <lpellier@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/06/08 15:31:15 by lpellier          #+#    #+#             */
-/*   Updated: 2021/11/26 16:37:03 by lpellier         ###   ########.fr       */
+/*   Created: 2021/11/26 17:13:05 by lpellier          #+#    #+#             */
+/*   Updated: 2021/11/30 16:02:36 by lpellier         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PHILO_H
 # define PHILO_H
+
+# define INTMAX_LEN 10
 
 # include <stdlib.h>
 # include <stdio.h>
@@ -19,6 +21,7 @@
 # include <pthread.h>
 # include <unistd.h>
 # include <sys/time.h>
+# include <limits.h>
 
 enum		e_actions
 {
@@ -28,76 +31,63 @@ enum		e_actions
 	SLEEP
 };
 
-typedef struct s_info
+typedef struct s_args
 {
-	struct timeval	time_since_start;
-	pthread_mutex_t	output_lock;
-	pthread_mutex_t	var_lock;
-	int				number_of_philosophers;
+	pthread_mutex_t	*output_lock;
+	int				*everyone_is_alive;
+
+	int				nbr_of_philos;
 	int				time_to_die;
 	int				time_to_eat;
 	int				time_to_sleep;
 	int				meal_goal;
-	int				everyone_is_alive;
-}					t_info;
+}				t_args;
 
 typedef struct s_philo
 {
 	pthread_mutex_t	*adjacent_forks[2];
 	pthread_t		thread;
-	t_info			*info;
+	t_args			args;
 	struct timeval	time_since_last_meal;
-	int				number_of_meals;
-	int				time_to_die;
-	int				time_to_eat;
-	int				time_to_sleep;
-	int				meal_goal;
-	int				holding;
+	int				holding_forks;
 	int				does;
-	int				philo_number;
-}					t_philo;
+	int				meals_eaten;
+	int				philo_index;
+}				t_philo;
 
-typedef struct s_state
-{
-	pthread_mutex_t	*forks;
-	t_philo			*philos;
-	t_info			*info;
-}					t_state;
+// main
+void				*philo_routine(void *arg);
+void				loop_routine(int *everyone_alive, t_philo *philo);
+void				*check_time(void *arg);
+void				check_philo_death(t_philo *philo, int everyone_alive);
 
-// int		access_var(pthread_mutex_t lock, int var);
-// void	modify_var(pthread_mutex_t lock, int * var, int replace);
+// philo utils
+void				output(t_philo *philo, char *msg);
+long				time_passed(struct timeval *ref);
+int					fill_args(char **av, t_args *args);
+void				better_usleep(int time);
+int					error_in_args(char **av);
 
-// utils
-void				ft_bzero(void *s, size_t n);
-int					a_malloc(void **ptr, int size);
-int					ft_calloc(void **ptr, size_t count, size_t size);
-int					ft_atoi(const char *str);
-void				secure_free(void *ptr);
-
-// init_and_destroy
-t_philo				create_philo(t_info *info, \
-						pthread_mutex_t *forks, int index);
-t_philo				*init_philos(t_info *info, pthread_mutex_t *forks);
-pthread_mutex_t		*init_forks(t_info *info);
-void				join_philos(t_state *state);
-void				destroy_forks(t_state *state);
-
-// philo_does
+// philo does
+void				philo_does(t_philo *philo);
 void				philo_thinks(t_philo *philo);
 void				philo_takes_forks(t_philo *philo);
 void				philo_eats(t_philo *philo);
 void				philo_sleeps(t_philo *philo);
-void				philo_does(t_philo *philo);
 
-// time_utils
-long				time_passed(struct timeval *ref);
-void				*check_time(void *arg);
-void				output(t_philo *philo, char *msg);
-void				better_usleep(int time);
+// init
+pthread_mutex_t		*init_forks(t_args args);
+t_philo				create_philo(\
+					t_args args, pthread_mutex_t *forks, int index);
+t_philo				*init_philos(t_args args, pthread_mutex_t *forks);
 
-// main
-t_state				*init_state(char **av);
-void				*philo_routine(void *arg);
-int					error_in_args(char **av);
+// destroy
+void				secure_free(void **ptr);
+void				destroy_forks(t_args args, pthread_mutex_t *forks);
+void				destroy_philos(t_args args, t_philo *philos);
+
+// utils
+int					ft_strlen(char *str);
+long				ft_atoi(const char *str);
 
 #endif
